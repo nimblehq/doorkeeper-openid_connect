@@ -108,7 +108,7 @@ module Doorkeeper
           keys: [
             signing_key.merge(
               use: 'sig',
-              alg: Doorkeeper::OpenidConnect.signing_algorithm
+              alg: signing_algorithm
             )
           ]
         }
@@ -134,6 +134,10 @@ module Doorkeeper
         else
           Doorkeeper::OpenidConnect.configuration.issuer
         end
+      end
+
+      def signing_algorithm
+        Doorkeeper::OpenidConnect.signing_algorithm
       end
 
       %i[authorization token revocation introspection userinfo jwks webfinger].each do |endpoint|

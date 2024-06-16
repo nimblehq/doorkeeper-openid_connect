@@ -32,9 +32,9 @@ module Doorkeeper
 
       def as_jws_token
         ::JWT.encode(as_json,
-          Doorkeeper::OpenidConnect.signing_key.keypair,
-          Doorkeeper::OpenidConnect.signing_algorithm.to_s,
-          { typ: 'JWT', kid: Doorkeeper::OpenidConnect.signing_key.kid }
+          signing_key.keypair,
+          signing_algorithm.to_s,
+          { typ: 'JWT', kid: signing_key.kid }
         ).to_s
       end
 
@@ -66,6 +66,14 @@ module Doorkeeper
 
       def auth_time
         Doorkeeper::OpenidConnect.configuration.auth_time_from_resource_owner.call(@resource_owner).try(:to_i)
+      end
+
+      def signing_key
+        Doorkeeper::OpenidConnect.signing_key
+      end
+
+      def signing_algorithm
+        Doorkeeper::OpenidConnect.signing_algorithm
       end
     end
   end

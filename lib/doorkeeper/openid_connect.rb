@@ -38,15 +38,23 @@ require 'doorkeeper/openid_connect/rails/routes'
 module Doorkeeper
   module OpenidConnect
     def self.signing_algorithm
-      configuration.signing_algorithm.to_s.upcase.to_sym
+      if configuration.signing_algorithm.respond_to?(:call)
+        configuration.signing_algorithm.call
+      else
+        configuration.signing_algorithm.to_s.upcase.to_sym
+      end
     end
 
     def self.signing_key
       key =
-        if %i[HS256 HS384 HS512].include?(signing_algorithm)
-          configuration.signing_key
+        if configuration.signing_key.respond_to?(:call)
+          configuration.signing_key.call
         else
-          OpenSSL::PKey.read(configuration.signing_key)
+          if %i[HS256 HS384 HS512].include?(signing_algorithm)
+            configuration.signing_key
+          else
+            OpenSSL::PKey.read(configuration.signing_key)
+          end
         end
       ::JWT::JWK.new(key, { kid_generator: ::JWT::JWK::Thumbprint })
     end
