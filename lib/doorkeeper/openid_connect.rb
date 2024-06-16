@@ -48,7 +48,11 @@ module Doorkeeper
     def self.signing_key
       key =
         if configuration.signing_key.respond_to?(:call)
-          configuration.signing_key.call
+          if %i[HS256 HS384 HS512].include?(signing_algorithm)
+            configuration.signing_key.call
+          else
+            OpenSSL::PKey.read(configuration.signing_key.call)
+          end
         else
           if %i[HS256 HS384 HS512].include?(signing_algorithm)
             configuration.signing_key
